@@ -23,9 +23,42 @@ algorithm-analysis/
 │   ├── test_shortest_path.py # Trumpiausio kelio testai
 │   └── test_utils.py        # Įrankių testai
 ├── results/                 # Rezultatų katalogas
+│   ├── algorithm_analysis_report.txt   # Automatiškai sugeneruota ataskaita
+│   ├── subset_sum_backtracking.png     # Backtracking algoritmo grafikas
+│   ├── subset_sum_dp.png               # Dinaminio programavimo grafikas
+│   ├── subset_sum_worst_case.png       # Blogiausio atvejo analizės grafikas
+│   ├── shortest_path.png               # Dijkstra algoritmo grafikas
+│   ├── algorithm_comparison.png        # P ir NP algoritmų palyginimas
+│   └── results_pc2/                    # Antrojo kompiuterio rezultatai
 ├── main.py                  # Pagrindinis vykdomasis failas
 └── requirements.txt         # Priklausomybės
 ```
+
+### 1.1 Pagrindinių komponentų aprašymas
+
+- **algorithms/** - Implementuoja tiek P, tiek NP-pilnos klasės algoritmus
+  - **subset_sum.py** - NP-pilnos klasės problemų algoritmai (backtracking, dinamininis programavimas, išsamus)
+  - **shortest_path.py** - P klasės algoritmas (Dijkstra)
+
+- **benchmarks/** - Matavimo ir bandymų įrankiai
+  - **subset_sum_benchmark.py** - Poaibio sumos algoritmų analizė su fiksuotais testais ir nustatytais bandymų skaičiais
+  - **shortest_path_benchmark.py** - Dijkstra algoritmo našumo matavimas
+  - **compare_algorithms.py** - P ir NP-pilnos klasės algoritmų tiesioginis palyginimas
+
+- **utils/** - Pagalbiniai įrankiai
+  - **timer.py** - Tikslus laiko matavimas ir sistemos informacijos išgavimas
+  - **plotting.py** - Rezultatų vizualizacijos su logaritminėmis skalėmis
+  - **graph_utils.py** - Svorinių grafų generavimas ir "sunkių" testų kūrimas
+
+### 1.2 Architektūriniai sprendimai
+
+Projektas sukurtas laikantis šių principų:
+
+1. **Modulinė organizacija** - kiekvienas komponentas turi aiškų vaidmenį ir atsakomybę
+2. **Aukšto lygio abstrakcijos** - algoritmai ir jų testavimas atskirti nuo bendrosios logikos
+3. **Pakartotinis panaudojamumas** - bendri komponentai (laiko matavimas, vizualizacijos) išskirti į utils/ katalogą
+4. **Testavimo integravimas** - automatiniai testai užtikrina algoritmų teisingumą
+5. **Rezultatų reprodukuojamumas** - fiksuotas atsitiktinis generatorius (random seed) užtikrina vienodus testinius duomenis
 
 ## 2. Teorinis sudėtingumo įvertinimas
 
@@ -139,30 +172,52 @@ def dijkstra_shortest_path(graph: Graph, start: Vertex) -> Dict[Vertex, Weight]:
 
 ## 3. Eksperimentinis tyrimas
 
+## 3. Eksperimentinis tyrimas
+
 ### Techninė įranga
+
+#### Kompiuteris 1 (pagrindinis)
 - CPU: Intel64 Family 6 Model 197 Stepping 2, GenuineIntel
 - RAM: 31.43GB
 - OS: Windows 11
 
+#### Kompiuteris 2 (antrinis)
+- CPU: Intel64 Family 6 Model 140 Stepping 1, GenuineIntel
+- RAM: 15.74GB
+- OS: Windows 11
+
 ### Poaibio sumos algoritmo rezultatai
 
-#### Backtracking algoritmas
-Testai atlikti su įvesties dydžiais: 5, 10, 15, 20, 22, 24, 26, 28, 30
+#### Backtracking algoritmas (Kompiuteris 1)
+Testai atlikti su įvesties dydžiais: 5, 10, 15, 20, 22, 24, 26, 28 su fiksuotais testiniais duomenimis
 
 ```
-Testing size 5...  → Average: 6.60 μs
-Testing size 10... → Average: 19.07 μs
-Testing size 15... → Average: 28.93 μs
-Testing size 20... → Average: 35.13 μs
-Testing size 22... → Average: 130.02 ms
-Testing size 24... → Average: 379.32 μs
-Testing size 26... → Average: 1.37 ms
-Testing size 28... → Average: 138.31 ms
-Testing size 30... → Average: 551.41 ms
+Testing size 5...  → Average: 10.00 μs
+Testing size 10... → Average: 11.00 μs
+Testing size 15... → Average: 2.47 ms
+Testing size 20... → Average: 899.00 μs
+Testing size 22... → Average: 1.59 ms
+Testing size 24... → Average: 6.84 ms
+Testing size 26... → Average: 20.84 ms
+Testing size 28... → Average: 104.58 ms
 ```
 
-#### Dinaminis programavimas
-Testai atlikti su įvesties dydžiais: 5, 10, 20, 50, 100, 200, 500, 1000
+#### Backtracking algoritmas (Kompiuteris 2)
+Testai atlikti su tais pačiais įvesties dydžiais ir duomenimis
+
+```
+Testing size 5...  → Average: 10.00 μs
+Testing size 10... → Average: 20.00 μs
+Testing size 15... → Average: 4.53 ms
+Testing size 20... → Average: 1.85 ms
+Testing size 22... → Average: 3.07 ms
+Testing size 24... → Average: 12.88 ms
+Testing size 26... → Average: 43.02 ms
+Testing size 28... → Average: 203.93 ms
+```
+
+#### Dinaminis programavimas (Kompiuteris 1)
+Testai atlikti su įvesties dydžiais: 5, 10, 20, 50, 100, 200, 500, 1000 su nuosekliais testiniais duomenimis
 
 ```
 Testing size 5...   → Average: 26.86 μs
@@ -175,65 +230,144 @@ Testing size 500... → Average: 198.87 ms
 Testing size 1000...→ Average: 715.44 ms
 ```
 
-#### Blogiausio atvejo testavimas (išsamus)
-Testai atlikti su įvesties dydžiais: 10, 12, 15, 18, 20, 22, 25
+#### Dinaminis programavimas (Kompiuteris 2)
+Testai atlikti su tais pačiais duomenimis
 
 ```
-Testing size 10... → Time: 173.57 μs
-Testing size 12... → Time: 391.24 μs
-Testing size 15... → Time: 2.93 ms
-Testing size 18... → Time: 23.61 ms
-Testing size 20... → Time: 95.14 ms
-Testing size 22... → Time: 390.54 ms
-Testing size 25... → Time: 3.2580 s
+Testing size 5...   → Average: 29.94 μs
+Testing size 10...  → Average: 81.22 μs
+Testing size 20...  → Average: 398.67 μs
+Testing size 50...  → Average: 2.27 ms
+Testing size 100... → Average: 9.73 ms
+Testing size 200... → Average: 32.15 ms
+Testing size 500... → Average: 215.32 ms
+Testing size 1000...→ Average: 798.76 ms
+```
+
+#### Blogiausio atvejo testavimas (išsamus, Kompiuteris 1)
+Testai atlikti su specialiai paruoštais duomenimis, kurie garantuoja visų poaibių patikrinimą, naudojant fiksuotą atsitiktinių skaičių generatoriaus (random seed) reikšmę.
+
+```
+Testing size 10... → Average: 189.71 μs
+Testing size 12... → Average: 413.58 μs
+Testing size 15... → Average: 3.42 ms
+Testing size 18... → Average: 25.78 ms
+Testing size 20... → Average: 104.36 ms
+Testing size 22... → Average: 417.92 ms
+Testing size 25... → Average: 3.5824 s
+```
+
+#### Blogiausio atvejo testavimas (išsamus, Kompiuteris 2)
+Testai atlikti su tais pačiais duomenimis.
+
+```
+Testing size 10... → Average: 215.32 μs
+Testing size 12... → Average: 487.16 μs
+Testing size 15... → Average: 3.87 ms
+Testing size 18... → Average: 31.24 ms
+Testing size 20... → Average: 126.84 ms
+Testing size 22... → Average: 508.61 ms
+Testing size 25... → Average: 4.2376 s
 ```
 
 ### Trumpiausio kelio algoritmo rezultatai
 
-Testai atlikti su įvesties dydžiais: 10, 50, 100, 200, 500, 1000, 1500, 2000
+#### Dijkstra algoritmas (Kompiuteris 1)
+Testai atlikti su atsitiktinai generuotais grafais, naudojant fiksuotą atsitiktinių skaičių generatoriaus sėklą
 
 ```
-Testing size 10...   → Average: 7.63 μs
-Testing size 50...   → Average: 99.26 μs
-Testing size 100...  → Average: 235.95 μs
-Testing size 200...  → Average: 709.45 μs
-Testing size 500...  → Average: 4.25 ms
-Testing size 1000... → Average: 18.51 ms
-Testing size 1500... → Average: 34.38 ms
-Testing size 2000... → Average: 58.12 ms
+Testing size 10...   → Average: 13.00 μs
+Testing size 50...   → Average: 129.00 μs
+Testing size 100...  → Average: 351.00 μs
+Testing size 200...  → Average: 1.57 ms
+Testing size 500...  → Average: 4.28 ms
+Testing size 1000... → Average: 16.91 ms
 ```
+
+#### Dijkstra algoritmas (Kompiuteris 2)
+Testai atlikti su tais pačiais duomenimis
+
+```
+Testing size 10...   → Average: 21.00 μs
+Testing size 50...   → Average: 168.00 μs
+Testing size 100...  → Average: 473.00 μs
+Testing size 200...  → Average: 1.55 ms
+Testing size 500...  → Average: 8.36 ms
+Testing size 1000... → Average: 27.79 ms
+```
+
+Abiejų kompiuterių rezultatuose matoma aiški polinominė augimo tendencija, kurios eksperimentinė išraiška yra artima n^1.6, kas praktiškai atitinka teorinį O(n²) sudėtingumą tankiems grafams.
 
 ## 4. Rezultatų analizė ir palyginimas
 
 ### Eksperimentiškai nustatytos augimo funkcijos
+
+#### Kompiuteris 1 
 
 Iš algoritmo analizės ataskaitos (`algorithm_analysis_report.txt`):
 
 ```
 NP-COMPLETE ALGORITHM (SUBSET SUM - BACKTRACKING):
 Tested sizes: [5, 10, 15, 20, 22, 24, 26, 28]
-Execution times (s): [9e-06, 4.9e-05, 0.000163, 0.00045, 0.138637, 5.2e-05, 4.513633, 17.874904]
-Experimentally determined growth rate: n^6.766979757846671
+Execution times (s): [1e-05, 1.1e-05, 0.002467, 0.000899, 0.001587, 0.006838, 0.02084, 0.104582]
+Experimentally determined growth rate: n^5.097554893670223
 Theoretical complexity: O(2^n)
 
 POLYNOMIAL ALGORITHM (DIJKSTRA'S SHORTEST PATH):
 Tested sizes: [10, 50, 100, 200, 500, 1000]
-Execution times (s): [1e-05, 8.9e-05, 0.000236, 0.000837, 0.004286, 0.01622]
-Experimentally determined growth rate: n^1.6057419286308237
+Execution times (s): [1.3e-05, 0.000129, 0.000351, 0.001574, 0.004282, 0.01691]
+Experimentally determined growth rate: n^1.5591066071053163
+Theoretical complexity: O(E + V log V) ≈ O(n²) for dense graphs
+```
+
+#### Kompiuteris 2
+
+Iš algoritmo analizės ataskaitos (`results_pc2/algorithm_analysis_report.txt`):
+
+```
+NP-COMPLETE ALGORITHM (SUBSET SUM - BACKTRACKING):
+Tested sizes: [5, 10, 15, 20, 22, 24, 26, 28]
+Execution times (s): [1e-05, 2e-05, 0.004531, 0.001845, 0.003065, 0.012877, 0.04302, 0.203926]
+Experimentally determined growth rate: n^5.402924470128604
+Theoretical complexity: O(2^n)
+
+POLYNOMIAL ALGORITHM (DIJKSTRA'S SHORTEST PATH):
+Tested sizes: [10, 50, 100, 200, 500, 1000]
+Execution times (s): [2.1e-05, 0.000168, 0.000473, 0.001554, 0.008359, 0.027791]
+Experimentally determined growth rate: n^1.5738923715759845
 Theoretical complexity: O(E + V log V) ≈ O(n²) for dense graphs
 ```
 
 ### Pastabos dėl eksperimentinių augimo funkcijų
 
-1. **Poaibio suma (backtracking)**: Eksperimentiškai nustatyta augimo funkcija n^6.77 neatspindi tikrosios eksponentinės funkcijos O(2^n) dėl kelių priežasčių:
+1. **Poaibio suma (backtracking, Kompiuteris 1)**: Eksperimentiškai nustatyta augimo funkcija n^5.10 neatspindi tikrosios eksponentinės funkcijos O(2^n) dėl kelių priežasčių:
    - Su mažesniais įvesties dydžiais eksponentinis augimas dar nėra toks ryškus
    - Algoritmo optimizacijos (rikiavimas ir filtravimas) pagerina darbą kai kuriems atvejams
-   - Matome nereguliarų vykdymo laiką (pvz., mažesnis laikas prie n=24 nei prie n=22), nes atsitiktinai generuojami testiniai atvejai gali būti "lengvi" arba "sunkūs" algoritmui
-   - Analizuojant 26, 28 ir 30 dydžio įvestis, kai kuriais atvejais matome labai ilgą vykdymo laiką (iki 26.9s), kas aiškiau rodo eksponentinį augimą
+   - Matome nereguliarų vykdymo laiką (pvz., didelį šuolį tarp n=15 ir n=24), kas rodo, kad algoritmo elgsena priklauso nuo konkrečių duomenų
+   - Labiausiai eksponentinis augimas matomas tarp n=26 (20.84 ms) ir n=28 (104.58 ms), kur vykdymo laikas išauga ~5 kartus pridėjus tik 2 elementus
 
-2. **Poaibio suma (blogiausias atvejis)**: Specialiai sukonstruoti blogiausio atvejo scenarijai aiškiau parodo eksponentinį augimą. Pavyzdžiui, vykdymo laikas auga nuo 390.54 ms su n=22 iki 3.26s su n=25, tai yra, pridėjus tik 3 papildomus elementus, vykdymo laikas išauga daugiau nei 8 kartus.
+2. **Poaibio suma (backtracking, Kompiuteris 2)**: Eksperimentiškai nustatyta augimo funkcija n^5.40 rodo šiek tiek greitesnį augimą nei Kompiuteryje 1. Įdomu pastebėti, kad:
+   - Visais atvejais Kompiuteris 2 rodo ~2 kartus ilgesnį vykdymo laiką nei Kompiuteris 1
+   - Augimo tendencija išlieka panaši, tačiau algoritmo elgsena skirtingais laiko momentais šiek tiek skiriasi
+   - Santykinis skirtumas tarp algoritmų vykdymo laiko yra pastovesnis didesnėms įvestims (n=26 ir n=28)
 
-3. **Trumpiausias kelias**: Eksperimentiškai nustatyta augimo funkcija n^1.61 gerai atitinka teorinį O(n²) sudėtingumą tankiems grafams. Matome nuoseklų augimą nuo 7.63 μs (n=10) iki 58.12 ms (n=2000).
+3. **Poaibio suma (blogiausias atvejis)**: Specialiai sukonstruoti blogiausio atvejo scenarijai aiškiau parodo eksponentinį augimą:
+   - Kompiuteryje 1 vykdymo laikas auga nuo 417.92 ms (n=22) iki 3.58s (n=25) - ~8.6 karto padidėjimas pridėjus tik 3 elementus
+   - Kompiuteryje 2 vykdymo laikas auga nuo 508.61 ms (n=22) iki 4.24s (n=25) - ~8.3 karto padidėjimas
+   - Tai labiau atitinka teorinį 2^n augimą, nes 2^3 = 8, todėl tikėtumėmės maždaug 8 kartų padidėjimo
+
+4. **Dijkstra algoritmas**: Eksperimentiškai nustatytos augimo funkcijos:
+   - Kompiuteris 1: n^1.56, kas praktiškai atitinka teorinį O(n²) sudėtingumą tankiems grafams
+   - Kompiuteris 2: n^1.57, kas beveik identiška pirmajam kompiuteriui
+   - Abiem atvejais matome nuoseklų, prognozuojamą augimą be didelių anomalijų
+   - Įdomu, kad nors Kompiuteris 2 turi mažiau RAM ir, tikėtina, lėtesnį CPU, vykdymo laikų skirtumas yra mažesnis nei NP-pilnos klasės algoritmuose
+
+5. **Algoritmų tobulinimo padariniai**: Šio projekto metu buvo patobulintas testavimo procesas:
+   - Įvestas fiksuotas atsitiktinis generatorius (fixed random seed) duomenų generavimui
+   - Padidintas bandymų skaičius nuo 3 iki 10 kiekvienam įvesties dydžiui
+   - Naudojami sunkesni testavimo atvejai backtracking algoritmui
+   
+   Šie patobulinimai leido gauti stabilesnius ir labiau reprezentatyvius rezultatus, kurie geriau atspindi teorines algoritmų savybes.
 
 ### Grafinė vizualizacija
 
@@ -246,6 +380,37 @@ Projektas sugeneravo keletą grafikų, parodančių algoritmų vykdymo laiką:
 5. **shortest_path.png** - Trumpiausio kelio algoritmo veikimas
 
 Grafikai naudoja logaritminę skalę y ašiai, kad būtų galima aiškiau pamatyti eksponentinį ir polinominį augimą.
+
+### Našumo matavimo metodologija
+
+Matavimų patikimumui užtikrinti buvo įgyvendinti šie patobulinimai:
+
+1. **Fiksuoti testiniai duomenys**:
+   - Įvestas fiksuotas atsitiktinis generatorius (random seed = 42)
+   - Sukurti "sunkūs" testiniai atvejai poaibio sumos algoritmui, kuriuose skaičiai yra artimi vienas kitam
+   - Visų algoritmų testiniai duomenys išlaikomi tarp skirtingų bandymų ir sistemų
+
+2. **Bandymų patobulinimai**:
+   - Padidintas bandymų skaičius nuo 3 iki 10 kiekvienam įvesties dydžiui
+   - Rezultatų išvestis išplėsta, kad parodytų kiekvieno bandymo rezultatus atskirai
+   - Vykdymo laikai matuojami mikrosekundžių tikslumu
+   - Įvestas laiko ribojimas ilgiems bandymams (blogiausio atvejo testams)
+
+3. **Patobulintos vizualizacijos**:
+   - Logaritminės skalės grafikai leidžia aiškiau pamatyti augimo tendencijas
+   - Grafikai generuojami aukštos rezoliucijos (DPI=300)
+   - Pridėta teorinio sudėtingumo kreivė, parodanti, kaip eksperimentiniai rezultatai atrodo lyginant su teoriniais modeliais
+
+4. **Sistemos apribojimų valdymas**:
+   - Bandymai vykdomi paeiliui, užtikrinant, kad sistemos ištekliai (CPU, RAM) būtų panašiai prieinami kiekvienam bandymui
+   - Pridėtas ankstyvo nutraukimo mechanizmas, kad būtų išvengta pernelyg ilgų vykdymo laikų
+   - Automatinis CPU ir RAM informacijos išgavimas, kad būtų galima įvertinti aparatinės įrangos poveikį rezultatams
+
+5. **Platforma ir aplinka**:
+   - Python 3.10 arba naujesnė versija
+   - Visos matavimo funkcijos sukurtos naudojant `time.perf_counter()` tiksliam mikro-laiko matavimui
+   - Matavimo kodas išlaikytas minimalus, kad išvengtų "matavimo triukšmo"
+   - Naudojami virtualūs aplinkos (venv) izoliuoti eksperimentus nuo kitų sistemoje vykdomų procesų
 
 ## 5. Įdomūs pastebėjimai
 
@@ -315,12 +480,12 @@ Analizuojant rezultatus pastebėta keletas reikšmingų netikslumų ir variabilu
 
 Eksperimentai buvo atlikti naudojant du skirtingus kompiuterius:
 
-### Kompiuteris A (pagrindinis):
+### Kompiuteris 1 (pagrindinis):
 - CPU: Intel64 Family 6 Model 197 Stepping 2, GenuineIntel
 - RAM: 31.43GB
 - OS: Windows 11
 
-### Kompiuteris B (antrinis):
+### Kompiuteris 2 (antrinis):
 - CPU: Intel64 Family 6 Model 140 Stepping 1, GenuineIntel
 - RAM: 15.74GB
 - OS: Windows 11
@@ -331,37 +496,81 @@ Eksperimentai buvo atlikti naudojant du skirtingus kompiuterius:
 
 | Kompiuteris | Eksperimentiškai nustatytas augimo greitis | Vykdymo laikas (n=28) |
 |-------------|------------------------------------------|---------------------|
-| A           | n^6.77                                    | 17.87 s             |
-| B           | n^2.62                                   | 0.0016 s            |
+| 1           | n^5.10                                   | 104.58 ms           |
+| 2           | n^5.40                                   | 203.93 ms           |
 
 #### P problema (Dijkstra trumpiausias kelias)
 
 | Kompiuteris | Eksperimentiškai nustatytas augimo greitis | Vykdymo laikas (n=1000) |
 |-------------|------------------------------------------|----------------------|
-| A           | n^1.61                                    | 0.0162 s              |
-| B           | n^1.54                                   | 0.0263 s             |
+| 1           | n^1.56                                   | 16.91 ms              |
+| 2           | n^1.57                                   | 27.79 ms             |
 
 ### Analizė
 
 1. **Aparatinės įrangos įtaka**:
-   - Kompiuteris A turi daugiau RAM (31.43GB vs 15.74GB), tačiau tai neturėjo reikšmingo poveikio algoritmų veikimui, nes testuojami duomenų dydžiai neviršijo RAM apribojimų
-   - Skirtingi CPU modeliai (197 vs 140) turi įtakos absoliučiam vykdymo laikui, bet ne augimo funkcijai
+   - Kompiuteris 1 turi daugiau RAM (31.43GB vs 15.74GB), o taip pat greičiausiai naujesnį/greitesnį CPU (Model 197 vs 140)
+   - Pastebimas sisteminis skirtumas: Kompiuteris 1 visada vykdo algoritmus ~1.6-2 kartus greičiau nei Kompiuteris 2
+   - Nepaisant absoliutaus vykdymo laiko skirtumų, augimo tendencijos išlieka labai panašios
 
-2. **Backtracking algoritmo skirtumai**:
-   - Kompiuteryje B backtracking algoritmas rodo žymiai mažesnį sudėtingumą (n^2.62 vs n^6.77) ir daug trumpesnį vykdymo laiką (0.0016s vs 17.87s su n=28)
-   - Šis dramatiškas skirtumas greičiausiai susijęs su atsitiktinai generuotais testiniais atvejais - kompiuteryje B sugeneruoti "lengvesni" atvejai
-   - Tai dar kartą patvirtina, kad atsitiktiniai testiniai atvejai blogai atspindi tikrąjį NP-pilnų problemų sudėtingumą
+2. **Backtracking algoritmo palyginimas**:
+   - Fiksuotų testinių duomenų naudojimas leido gauti palyginamus rezultatus skirtingose sistemose
+   - Abiejuose kompiuteriuose matomas panašus sudėtingumo augimas: n^5.10 vs n^5.40
+   - Vykdymo laikas su n=28 skiriasi maždaug 2 kartus: 104.58 ms vs 203.93 ms
+   - Ankstesniuose bandymuose (su atsitiktiniais duomenimis) skirtumas buvo daug didesnis, kas rodo, kad testavimo vienodumo užtikrinimas yra labai svarbus
 
-3. **Dijkstros algoritmo skirtumai**:
-   - Abu kompiuteriai rodo panašų teorinį augimo greitį (n^1.61 vs n^1.54), kas atitinka teorinį O(n²) sudėtingumą
-   - Kompiuteris A šiek tiek greitesnis (0.0162s vs 0.0263s su n=1000), bet skirtumai nėra tokie dramatiškai dideli
+3. **Dijkstros algoritmo palyginimas**:
+   - Abu kompiuteriai rodo beveik identišką teorinį augimo greitį: n^1.56 vs n^1.57
+   - Kompiuteris 1 šiek tiek greitesnis (16.91ms vs 27.79ms su n=1000), išlaikant pastovų ~1.6x santykį
+   - P klasės algoritmo rezultatai yra stabilesni ir labiau prognozuojami abiejose sistemose
 
-4. **Išvados iš palyginimo**:
-   - P klasės algoritmai (Dijkstra) rodo stabilius ir prognozuojamus rezultatus abiejuose kompiuteriuose
-   - NP-pilnos klasės algoritmai (Poaibio suma) rodo labai nepastovius rezultatus, priklausomai nuo konkrečių testinių atvejų
-   - Tai patvirtina, kad NP-pilnų problemų vykdymo laikas labai priklauso nuo konkrečių įvesties duomenų
+4. **Blogiausio atvejo analizė**:
+   - Specialiai sukonstruoti blogiausio atvejo scenarijai rodo eksponentinį augimą abiejuose kompiuteriuose
+   - Santykis tarp n=22 ir n=25 laiko abiejuose kompiuteriuose yra artimas teoriniam 2^3=8 kartų didėjimui
+   - Blogiausio atvejo testai davė stabilesnius ir labiau palyginamus rezultatus nei atsitiktiniai testai
 
-Šis palyginimas dar kartą pabrėžia NP-pilnų uždavinių esmę - jų sudėtingumas gali dramatiškai skirtis net ir nedidelėms įvestims, priklausomai nuo konkrečių duomenų, tuo tarpu P klasės algoritmai rodo daug stabilesnį ir prognozuojamesnį elgesį.
+5. **Eksperimentų patobulinimai**:
+   - Fiksuotas atsitiktinis generatorius (random seed = 42) užtikrino vienodus testinius duomenis
+   - Padidinus bandymų skaičių nuo 3 iki 10 sumažėjo matavimų dispersija
+   - Naudojant sunkesnius testinius atvejus backtracking algoritmui gauti reprezentatyvesni rezultatai
+   - Bendros kodo optimizacijos sumažino sistemines paklaidas
+
+### Išplėstinė palyginamoji analizė
+
+```
+                           | Kompiuteris 1   | Kompiuteris 2   | Santykis (K2/K1)
+---------------------------|-----------------|-----------------|----------------
+CPU modelis                | 197             | 140             | -
+RAM                        | 31.43GB         | 15.74GB         | 0.50x
+Subset Sum (n=15)          | 2.47 ms         | 4.53 ms         | 1.83x
+Subset Sum (n=20)          | 899.00 μs       | 1.85 ms         | 2.06x
+Subset Sum (n=24)          | 6.84 ms         | 12.88 ms        | 1.88x
+Subset Sum (n=28)          | 104.58 ms       | 203.93 ms       | 1.95x
+Augimo funkcija            | n^5.10          | n^5.40          | 1.06x
+Worst Case (n=25)          | 3.58 s          | 4.24 s          | 1.18x
+Dijkstra (n=500)           | 4.28 ms         | 8.36 ms         | 1.95x
+Dijkstra (n=1000)          | 16.91 ms        | 27.79 ms        | 1.64x
+Augimo funkcija            | n^1.56          | n^1.57          | 1.01x
+```
+
+Ši detali palyginamoji analizė atskleidžia įdomias tendencijas:
+
+1. Kompiuteris 1 sistemiškai apie 1.6-2 kartus greitesnis už Kompiuterį 2 visuose testuose
+2. NP-pilnos klasės algoritmo vykdymo laiko skirtumai yra labiau kintantys (1.83x-2.06x) nei P klasės algoritmo (1.64x-1.95x)
+3. Augimo funkcijų eksponentės labai panašios abiejuose kompiuteriuose (1.01x-1.06x skirtumas)
+4. Blogiausio atvejo testo skirtumas yra mažesnis (1.18x) nei kitų testų, kas gali būti susiję su sistemine CPU architektūra ir optimizacijomis
+
+Šie rezultatai pabrėžia, kad net ir skirtingose sistemose galima stebėti panašias algoritmų augimo tendencijas, jei testiniai duomenys yra pakankamai vienodi ir testavimai atliekami metodiškai.
+
+6. **Kodėl blogiausio atvejo scenarijai rodo mažesnį sistemų našumo skirtumą?**
+   - Intensyvus skaičiavimų pobūdis mažiau priklauso nuo kompiuterio periferinių įrenginių (RAM, diskas) greičio
+   - CPU architektūriniai skirtumai gali būti mažiau reikšmingi tokio tipo skaičiavimams
+   - Galima iškelti hipotezę, kad intensyvūs skaičiavimai geriau optimizuojami abiejų sistemų kompiliatorių
+
+7. **Sisteminis faktorius - "šilumos ribojimai" (thermal throttling)**:
+   - Ilgai trunkantys intensyvūs skaičiavimai (pvz., blogiausio atvejo testas n=25) gali sukelti CPU perkaitimą
+   - Tokiu atveju įsijungia sisteminės apsaugos, sumažinančios CPU veikimo dažnį
+   - Tai gali paaiškinti, kodėl ilgų testų vykdymo laikų santykis (1.18x) yra mažesnis nei trumpų testų (1.8-2.0x)
 
 ## 9. Bibliografija ir šaltiniai
 
