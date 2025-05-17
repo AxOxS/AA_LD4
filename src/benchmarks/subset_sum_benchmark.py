@@ -47,34 +47,47 @@ def verify_subset_sum_algorithms():
             print(f"{name}: {result} (Expected: {expected}) {status}")
 
 
-def benchmark_backtracking(sizes: List[int] = None, num_trials: int = 3) -> Tuple[List[int], List[float]]:
+def benchmark_backtracking(sizes: List[int] = None, num_trials: int = 10) -> Tuple[List[int], List[float]]:
     """
     Benchmark the backtracking Subset Sum algorithm.
     
     Args:
-        sizes: List of input sizes to test (defaults to [5, 10, 15, 20, 25, 30])
-        num_trials: Number of trials to run for each size for better accuracy
+        sizes: List of input sizes to test (defaults to [10, 15, 20, 25, 30])
+        num_trials: Number of trials to run for each size for better accuracy (default: 10)
         
     Returns:
         Tuple of (sizes, average execution times)
     """
     if sizes is None:
-        sizes = [5, 10, 15, 20, 22, 24, 26, 28, 30]
+        sizes = [10, 15, 20, 22, 24, 26, 28, 30]
     
     times = []
     
     print("\n=== Benchmarking Subset Sum (Backtracking) ===")
     print("This will demonstrate the exponential growth in execution time.")
+    print(f"Running {num_trials} trials for each input size for better consistency...")
+    
+    # Fixed random seed for reproducibility
+    random.seed(42)
     
     for size in sizes:
         print(f"\nTesting size {size}...")
         total_time = 0
         
+        # Generate a hard problem instance for this size
+        nums = []
+        for i in range(size):
+            # Generate numbers that are close to each other to make the subset sum harder
+            nums.append(1000 + random.randint(-5, 5))
+        
+        # Set target to half the sum to maximize search space
+        total_sum = sum(nums)
+        target = total_sum // 2
+        
+        print(f"  Using fixed input: {nums}")
+        print(f"  Target: {target}")
+        
         for trial in range(num_trials):
-            # Generate random input of the current size
-            nums = [random.randint(1, 100) for _ in range(size)]
-            target = random.randint(size * 25, size * 50)
-            
             print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
             result, execution_time = time_function(subset_sum_backtracking, nums, target)
             total_time += execution_time
@@ -87,13 +100,13 @@ def benchmark_backtracking(sizes: List[int] = None, num_trials: int = 3) -> Tupl
     return sizes, times
 
 
-def benchmark_dynamic_programming(sizes: List[int] = None, num_trials: int = 3) -> Tuple[List[int], List[float]]:
+def benchmark_dynamic_programming(sizes: List[int] = None, num_trials: int = 10) -> Tuple[List[int], List[float]]:
     """
     Benchmark the dynamic programming Subset Sum algorithm.
     
     Args:
         sizes: List of input sizes to test (defaults to [5, 10, 20, ..., 1000])
-        num_trials: Number of trials to run for each size for better accuracy
+        num_trials: Number of trials to run for each size for better accuracy (default: 10)
         
     Returns:
         Tuple of (sizes, average execution times)
@@ -105,16 +118,28 @@ def benchmark_dynamic_programming(sizes: List[int] = None, num_trials: int = 3) 
     
     print("\n=== Benchmarking Subset Sum (Dynamic Programming) ===")
     print("This will demonstrate the pseudo-polynomial growth in execution time.")
+    print(f"Running {num_trials} trials for each input size for better consistency...")
+    
+    # Fixed random seed for reproducibility
+    random.seed(42)
     
     for size in sizes:
         print(f"\nTesting size {size}...")
         total_time = 0
         
+        # Generate a consistent test case for this size
+        nums = []
+        for i in range(size):
+            # Generate numbers that cover a good range
+            nums.append(random.randint(1, 1000))
+        
+        # Set target to a value that will require full DP table computation
+        target = sum(nums) // 3
+        
+        print(f"  Using fixed input of size {size}")
+        print(f"  Target: {target}")
+        
         for trial in range(num_trials):
-            # Generate random input of the current size
-            nums = [random.randint(1, 100) for _ in range(size)]
-            target = random.randint(size * 25, size * 50)
-            
             print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
             result, execution_time = time_function(subset_sum_dynamic, nums, target)
             total_time += execution_time
@@ -127,42 +152,60 @@ def benchmark_dynamic_programming(sizes: List[int] = None, num_trials: int = 3) 
     return sizes, times
 
 
-def benchmark_worst_case(sizes: List[int] = None) -> Tuple[List[int], List[float]]:
+def benchmark_worst_case(sizes: List[int] = None, num_trials: int = 5) -> Tuple[List[int], List[float]]:
     """
     Benchmark the exhaustive search Subset Sum algorithm on worst-case instances.
     
     Args:
-        sizes: List of input sizes to test (defaults to [10, 15, 20, 22, 25])
+        sizes: List of input sizes to test (defaults to [10, 12, 15, 18, 20, 21, 22, 23])
+        num_trials: Number of trials to run for each size for better accuracy
         
     Returns:
         Tuple of (sizes, execution times)
     """
     if sizes is None:
-        sizes = [10, 12, 15, 18, 20, 22, 25]
+        sizes = [10, 12, 15, 18, 20, 21, 22, 23]
     
     results = []
     
     print("\n=== Benchmarking Subset Sum (Worst Case) ===")
     print("This will demonstrate the true exponential nature of the problem.")
+    print(f"Running {num_trials} trials for each input size for better consistency...")
     print("NOTE: This may take several minutes for larger inputs.\n")
+    
+    # Use fixed seed for reproducibility
+    random.seed(42)
     
     for size in sizes:
         print(f"Testing size {size}...")
+        
+        # Create a hard instance for this size
         nums, target = create_hard_subset_sum_instance(size)
         
         print(f"  Input array: {nums}")
         print(f"  Target (impossible): {target}")
         
-        result, execution_time = time_function(subset_sum_exhaustive, nums, target)
+        total_time = 0
         
-        print(f"  Result: {result} (Expected: False)")
-        print(f"  Time: {format_time(execution_time)}")
+        for trial in range(num_trials):
+            print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
+            result, execution_time = time_function(subset_sum_exhaustive, nums, target)
+            total_time += execution_time
+            print(f"Time: {format_time(execution_time)} (Result: {result})")
+            
+            # Stop early if a single trial takes more than 2 minutes
+            if execution_time > 120:
+                print(f"  Stopping trials for size {size} as execution time exceeded 2 minutes")
+                break
         
-        results.append((size, execution_time))
+        avg_time = total_time / (trial + 1)  # Average over completed trials
+        print(f"  Size {size} → Average: {format_time(avg_time)}")
         
-        # Stop if it takes more than 5 minutes
-        if execution_time > 300:
-            print("  Stopping as execution time exceeded 5 minutes")
+        results.append((size, avg_time))
+        
+        # Stop if the average execution time exceeds 5 minutes
+        if avg_time > 300:
+            print("  Stopping as average execution time exceeded 5 minutes")
             break
     
     actual_sizes, times = zip(*results)
