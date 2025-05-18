@@ -7,6 +7,7 @@ of different Subset Sum algorithm implementations.
 import random
 from typing import List, Tuple
 import os
+import math
 
 from src.algorithms.subset_sum import (
     subset_sum_backtracking,
@@ -87,13 +88,27 @@ def benchmark_backtracking(sizes: List[int] = None, num_trials: int = 10) -> Tup
         print(f"  Using fixed input: {nums}")
         print(f"  Target: {target}")
         
-        for trial in range(num_trials):
-            print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
+        # Adaptively reduce trials for extremely large inputs
+        actual_trials = num_trials
+        if size >= 32:
+            actual_trials = min(2, num_trials)
+            print(f"  ⚠️ Reducing to {actual_trials} trials for size {size} to avoid excessive runtime")
+        elif size >= 30:
+            actual_trials = min(3, num_trials) 
+            print(f"  ⚠️ Reducing to {actual_trials} trials for size {size} to avoid excessive runtime")
+            
+        for trial in range(actual_trials):
+            print(f"  Trial {trial+1}/{actual_trials}: ", end="", flush=True)
             result, execution_time = time_function(subset_sum_backtracking, nums, target)
             total_time += execution_time
             print(f"Time: {format_time(execution_time)} (Result: {result})")
+            
+            # Safety cutoff for extremely long-running trials
+            if execution_time > 300:  # 5 minutes
+                print(f"  ⚠️ Stopping trials for size {size} as execution time exceeded 5 minutes")
+                break
         
-        avg_time = total_time / num_trials
+        avg_time = total_time / (trial + 1)  # Average over completed trials
         times.append(avg_time)
         print(f"  Size {size} → Average: {format_time(avg_time)}")
     
@@ -131,25 +146,61 @@ def benchmark_dynamic_programming(sizes: List[int] = None, num_trials: int = 10)
         nums = []
         for i in range(size):
             # Generate numbers that cover a good range
-            nums.append(random.randint(1, 1000))
+            # For very large sizes, use smaller numbers to prevent excessive memory use
+            if size > 800:
+                nums.append(random.randint(1, 100))
+            else:
+                nums.append(random.randint(1, 1000))
         
         # Set target to a value that will require full DP table computation
-        target = sum(nums) // 3
+        # For very large sizes, use a more reasonable target to prevent memory exhaustion
+        if size > 800:
+            target = sum(nums) // 6
+        else:
+            target = sum(nums) // 3
         
         print(f"  Using fixed input of size {size}")
         print(f"  Target: {target}")
         
-        for trial in range(num_trials):
-            print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
-            result, execution_time = time_function(subset_sum_dynamic, nums, target)
-            total_time += execution_time
-            print(f"Time: {format_time(execution_time)} (Result: {result})")
+        # Adaptively reduce trials for extremely large inputs
+        actual_trials = num_trials
+        if size >= 1000:
+            actual_trials = 1
+            print(f"  ⚠️ Using only 1 trial for size {size} due to expected long runtime and memory usage")
+        elif size >= 500:
+            actual_trials = min(2, num_trials)
+            print(f"  ⚠️ Reducing to {actual_trials} trials for size {size}")
         
-        avg_time = total_time / num_trials
-        times.append(avg_time)
-        print(f"  Size {size} → Average: {format_time(avg_time)}")
+        for trial in range(actual_trials):
+            print(f"  Trial {trial+1}/{actual_trials}: ", end="", flush=True)
+            
+            try:
+                result, execution_time = time_function(subset_sum_dynamic, nums, target)
+                total_time += execution_time
+                print(f"Time: {format_time(execution_time)} (Result: {result})")
+                
+                # Stop early if a single trial takes more than 5 minutes
+                if execution_time > 300:
+                    print(f"  ⚠️ Stopping trials for size {size} as execution time exceeded 5 minutes")
+                    break
+            except MemoryError:
+                print(f"❌ Memory error for size {size}. Consider reducing size or target.")
+                if trial == 0:
+                    # Skip this size if we can't even complete one trial
+                    total_time = float('nan')
+                break
+        
+        if not math.isnan(total_time):
+            avg_time = total_time / (trial + 1)  # Average over completed trials
+            times.append(avg_time)
+            print(f"  Size {size} → Average: {format_time(avg_time)}")
+        else:
+            # Skip this size in results
+            print(f"  Size {size} → Skipped due to memory constraints")
     
-    return sizes, times
+    # Filter out any sizes that were skipped
+    completed_sizes = sizes[:len(times)]
+    return completed_sizes, times
 
 
 def benchmark_worst_case(sizes: List[int] = None, num_trials: int = 5) -> Tuple[List[int], List[float]]:
@@ -185,17 +236,23 @@ def benchmark_worst_case(sizes: List[int] = None, num_trials: int = 5) -> Tuple[
         print(f"  Input array: {nums}")
         print(f"  Target (impossible): {target}")
         
+        # Adaptively reduce trials for extremely large inputs
+        actual_trials = num_trials
+        if size >= 24:
+            actual_trials = 1
+            print(f"  ⚠️ Using only 1 trial for size {size} due to expected long runtime")
+        
         total_time = 0
         
-        for trial in range(num_trials):
-            print(f"  Trial {trial+1}/{num_trials}: ", end="", flush=True)
+        for trial in range(actual_trials):
+            print(f"  Trial {trial+1}/{actual_trials}: ", end="", flush=True)
             result, execution_time = time_function(subset_sum_exhaustive, nums, target)
             total_time += execution_time
             print(f"Time: {format_time(execution_time)} (Result: {result})")
             
-            # Stop early if a single trial takes more than 2 minutes
-            if execution_time > 120:
-                print(f"  Stopping trials for size {size} as execution time exceeded 2 minutes")
+            # Stop early if a single trial takes more than 10 minutes
+            if execution_time > 600:
+                print(f"  ⚠️ Stopping trials for size {size} as execution time exceeded 10 minutes")
                 break
         
         avg_time = total_time / (trial + 1)  # Average over completed trials
@@ -203,9 +260,9 @@ def benchmark_worst_case(sizes: List[int] = None, num_trials: int = 5) -> Tuple[
         
         results.append((size, avg_time))
         
-        # Stop if the average execution time exceeds 5 minutes
-        if avg_time > 300:
-            print("  Stopping as average execution time exceeded 5 minutes")
+        # Stop if the average execution time exceeds 15 minutes
+        if avg_time > 900:
+            print(f"  ⚠️ Stopping benchmark as average execution time exceeded 15 minutes")
             break
     
     actual_sizes, times = zip(*results)
@@ -217,20 +274,27 @@ def run_all_benchmarks():
     # Create results directory if it doesn't exist
     os.makedirs("results", exist_ok=True)
     
+    print("\n🔥 EXTREME BENCHMARK MODE - CORE ULTRA 9 🔥")
+    
     # First verify all algorithms work correctly
     verify_subset_sum_algorithms()
     
-    # Benchmark the backtracking algorithm
-    bt_sizes, bt_times = benchmark_backtracking()
+    # Benchmark the backtracking algorithm with extended range
+    print("\nRunning backtracking with extreme input sizes...")
+    bt_sizes = [5, 10, 15, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42]
+    bt_sizes, bt_times = benchmark_backtracking(bt_sizes, num_trials=2)
     plot_execution_times(
         bt_sizes, bt_times,
         "Subset Sum (Backtracking) - Execution Time vs Input Size",
         "Backtracking", "results/subset_sum_backtracking.png",
-        expected_complexity="O(2^n)"
+        expected_complexity="O(2^n)",
+        log_scale=True  # Always use log scale for exponential algorithms
     )
     
-    # Benchmark the dynamic programming algorithm
-    dp_sizes, dp_times = benchmark_dynamic_programming()
+    # Benchmark the dynamic programming algorithm with extended range
+    print("\nRunning dynamic programming with extreme input sizes...")
+    dp_sizes = [5, 10, 20, 50, 100, 200, 500, 1000, 1500, 2000]
+    dp_sizes, dp_times = benchmark_dynamic_programming(dp_sizes, num_trials=1)
     plot_execution_times(
         dp_sizes, dp_times,
         "Subset Sum (Dynamic Programming) - Execution Time vs Input Size",
@@ -238,8 +302,10 @@ def run_all_benchmarks():
         expected_complexity="O(n*target)"
     )
     
-    # Benchmark worst-case scenario
-    wc_sizes, wc_times = benchmark_worst_case()
+    # Benchmark worst-case scenario with extended range
+    print("\nRunning worst case with extreme input sizes...")
+    wc_sizes = [10, 15, 18, 20, 22, 23, 24, 25, 26, 27]
+    wc_sizes, wc_times = benchmark_worst_case(wc_sizes, num_trials=1)
     plot_execution_times(
         wc_sizes, wc_times,
         "Subset Sum (Worst Case) - Execution Time vs Input Size",

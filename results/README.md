@@ -1,12 +1,12 @@
-# Algoritmo analizės projekto pristatymas
+# Algoritmų analizės projekto pristatymas
 
-## 1. Projekto struktūra ir organizacija
+## 1. Projekto struktūra
 
 Projektas organizuotas pagal šiuolaikines programinės įrangos kūrimo praktikas, su aiškia moduline struktūra:
 
 ```
 algorithm-analysis/
-├── src/                     # Šaltinio kodas
+├── src/                     # Source katalogas
 │   ├── algorithms/          # Algoritmų implementacijos
 │   │   ├── subset_sum.py    # Poaibio sumos algoritmai 
 │   │   └── shortest_path.py # Trumpiausio kelio algoritmas
@@ -30,8 +30,8 @@ algorithm-analysis/
 │   ├── shortest_path.png               # Dijkstra algoritmo grafikas
 │   ├── algorithm_comparison.png        # P ir NP algoritmų palyginimas
 │   └── results_pc2/                    # Antrojo kompiuterio rezultatai
-├── main.py                  # Pagrindinis vykdomasis failas
-└── requirements.txt         # Priklausomybės
+├── main.py                  # main failas
+└── requirements.txt         # Būtinos bibliotekos
 ```
 
 ### 1.1 Pagrindinių komponentų aprašymas
@@ -169,8 +169,6 @@ def dijkstra_shortest_path(graph: Graph, start: Vertex) -> Dict[Vertex, Weight]:
 ```
 
 **Teorinis sudėtingumas:** O(E + V log V), kur E yra briaunų skaičius, o V - viršūnių skaičius. Tankiame grafe tai apytiksliai O(n²).
-
-## 3. Eksperimentinis tyrimas
 
 ## 3. Eksperimentinis tyrimas
 

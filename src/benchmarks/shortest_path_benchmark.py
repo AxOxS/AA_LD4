@@ -88,11 +88,15 @@ def run_benchmark():
     # Create results directory if it doesn't exist
     os.makedirs("results", exist_ok=True)
     
+    print("\n🔥 EXTREME BENCHMARK MODE - CORE ULTRA 9 🔥")
+    
     # First verify algorithm works correctly
     verify_shortest_path_algorithm()
     
-    # Benchmark the algorithm
-    sizes, times = benchmark_shortest_path()
+    # Benchmark the algorithm with extreme sizes
+    print("\nRunning Dijkstra with extreme input sizes...")
+    sizes = [10, 50, 100, 500, 1000, 2000, 5000, 8000, 10000, 15000]
+    sizes, times = benchmark_shortest_path(sizes)
     
     # Plot results
     plot_execution_times(
